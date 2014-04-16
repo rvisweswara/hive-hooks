@@ -22,4 +22,6 @@ a) Add the following property to /etc/hive/conf/hive-site.xml
 
 b) copy the compiled jar hive-custom-hooks-*jar to /usr/lib/hive/lib/ on Hive/HiveServer2/Hue hosts.
 
+c) Restart hue/hiveserver2.
+
 
