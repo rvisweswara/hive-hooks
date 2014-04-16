@@ -13,10 +13,12 @@ Steps to configure:
 
 a) Add the following property to /etc/hive/conf/hive-site.xml
 
+```
    <property>
     <name>hive.exec.driver.run.hooks</name>
     <value>org.apache.hadoop.mapred.QueueHandlerHiveDriverRunHook</value>
   </property>
+```
 
 b) copy the compiled jar hive-custom-hooks-*jar to /usr/lib/hive/lib/ on Hive/HiveServer2/Hue hosts.
 
