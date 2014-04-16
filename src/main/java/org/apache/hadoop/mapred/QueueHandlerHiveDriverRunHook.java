@@ -32,7 +32,7 @@ public class QueueHandlerHiveDriverRunHook implements HiveDriverRunHook {
 
 		HiveConf config = (HiveConf) context.getConf();
 		
-		//check if hive execution engine is set to tez. If so, queue name property should be tez.queue.name
+		//check if hive execution engine is set to tez. If so, queue name property should be tez.queue.name.
 		String queue_property = MR_QUEUE_NAME_PROPERTY;
 		String hiveExecEngine = config.get(QueueHandlerHiveDriverRunHook.HIVE_EXECUTION_ENGINE_PROPERTY);
 		
