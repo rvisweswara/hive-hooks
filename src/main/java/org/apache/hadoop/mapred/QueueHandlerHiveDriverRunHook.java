@@ -15,8 +15,10 @@ import org.apache.commons.logging.LogFactory;
 
 public class QueueHandlerHiveDriverRunHook implements HiveDriverRunHook {
 
-	private static final String QUEUE_NAME_PROPERTY = "mapred.job.queue.name";
-
+	private static final String MR_QUEUE_NAME_PROPERTY = "mapred.job.queue.name";
+	private static final String TEZ_QUEUE_NAME_PROPERTY = "tez.queue.name";
+	private static final String HIVE_EXECUTION_ENGINE_PROPERTY = "hive.execution.engine";
+	
 	private static final Log LOG = LogFactory
 			.getLog(QueueHandlerHiveDriverRunHook.class);
 
@@ -29,14 +31,23 @@ public class QueueHandlerHiveDriverRunHook implements HiveDriverRunHook {
 	public void preDriverRun(HiveDriverRunHookContext context) throws Exception {
 
 		HiveConf config = (HiveConf) context.getConf();
-		String queue = config.get(QueueHandlerHiveDriverRunHook.QUEUE_NAME_PROPERTY);
-
+		
+		//check if hive execution engine is set to tez. If so, queue name property should be tez.queue.name
+		String queue_property = MR_QUEUE_NAME_PROPERTY;
+		String hiveExecEngine = config.get(QueueHandlerHiveDriverRunHook.HIVE_EXECUTION_ENGINE_PROPERTY);
+		
+		if(hiveExecEngine!=null && hiveExecEngine.equalsIgnoreCase("tez")){
+			queue_property = TEZ_QUEUE_NAME_PROPERTY;
+		}
+		
+		String queue = config.get(queue_property);
+		
 		// if queue name is specified as default, try to find a better qualified
 		// queue
-		if ("default".equals(queue)) {
+		if (queue==null || "default".equals(queue)) {
 			String newQueue = getQualifiedQueue(context.getConf(), queue);
 			if (newQueue != null && !newQueue.equalsIgnoreCase(queue)) {
-				config.set(QueueHandlerHiveDriverRunHook.QUEUE_NAME_PROPERTY, newQueue);
+				config.set(queue_property, newQueue);
 				LOG.info("queue name overriden to " + queue
 						+ " From default for the user " + config.getUser());
 			}
@@ -77,7 +88,7 @@ public class QueueHandlerHiveDriverRunHook implements HiveDriverRunHook {
 			}
 		} catch (IOException e) {
 			//Do Nothing. Ignore the error and let query run in the default queue
-			e.printStackTrace();
+			LOG.error("Ignoring error while executing the pre driver run hook. error occured during the queue determination.",e);;
 		}
 		return queue;
 	}
